@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Lot & Vehicle Fee System (CRUD)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div>
+                <h1>🚗 Parking Lot & Vehicle Fee System</h1>
+                <p>Express.js + MongoDB Atlas CRUD Management Dashboard</p>
+            </div>
+            <span class="badge-tag">MERN-stack / MVC Architecture</span>
+        </header>
+
+        <!-- NOTIFICATION / ALERT BANNER -->
+        <div id="alertBox" class="alert"></div>
+
+        <!-- 1. SUMMARY CARDS -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Total Vehicles</div>
+                <div class="stat-value" id="statTotalVehicles">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Bikes</div>
+                <div class="stat-value" id="statBikes">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Cars</div>
+                <div class="stat-value" id="statCars">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Total Fee Collected</div>
+                <div class="stat-value highlight" id="statTotalFee">₹0</div>
+            </div>
+        </section>
+
+        <!-- 2. CREATE VEHICLE FORM -->
+        <section class="card">
+            <h2 class="card-title">➕ Register / Park New Vehicle</h2>
+            <form id="vehicleForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="vehicleNumber">Vehicle Number *</label>
+                        <input type="text" id="vehicleNumber" placeholder="e.g. HR-26-AB-1234" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vehicleType">Vehicle Type *</label>
+                        <select id="vehicleType" required onchange="handleTypeChange()">
+                            <option value="Bike">Bike (₹20)</option>
+                            <option value="Car">Car (₹50)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ownerName">Owner Name *</label>
+                        <input type="text" id="ownerName" placeholder="e.g. John Doe" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="parkingFee">Parking Fee (₹) *</label>
+                        <input type="number" id="parkingFee" value="20" min="0" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Initial Status</label>
+                        <select id="status">
+                            <option value="Parked" selected>Parked</option>
+                            <option value="Exited">Exited</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" style="height: 42px;">Park Vehicle</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- 3. VEHICLES DATA TABLE (READ, UPDATE, DELETE) -->
+        <section class="card">
+            <h2 class="card-title">📋 Current Vehicles in Parking Lot</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Vehicle No.</th>
+                            <th>Type</th>
+                            <th>Owner Name</th>
+                            <th>Fee (₹)</th>
+                            <th>Status</th>
+                            <th>Entry Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehicleTableBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">Loading vehicle records...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- UPDATE MODAL (For Updating Status & Parking Fee via PUT /api/vehicles/:id) -->
+    <div id="updateModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Update Vehicle Record</h3>
+                <button type="button" class="modal-close" onclick="closeUpdateModal()">&times;</button>
+            </div>
+            <form id="updateVehicleForm">
+                <input type="hidden" id="editVehicleId" />
+
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label>Vehicle Number</label>
+                    <input type="text" id="editVehicleNumber" disabled style="background-color: #f1f5f9;" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label for="editStatus">Status</label>
+                    <select id="editStatus">
+                        <option value="Parked">Parked</option>
+                        <option value="Exited">Exited</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 14px;">
+                    <label for="editParkingFee">Parking Fee (₹)</label>
+                    <input type="number" id="editParkingFee" min="0" required />
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeUpdateModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================================== -->
+    <!-- MINIMAL JAVASCRIPT FOR API CALLS (fetch)                                       -->
+    <!-- Heavily commented for viva and project evaluation                             -->
+    <!-- ============================================================================== -->
+    <script>
+        const API_URL = '/api/vehicles';
+
+        // Helper to display alert banner for 3.5 seconds
+        function showAlert(message, type = 'success') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3500);
+        }
+
+        // Adjust default fee when vehicle type changes in the create form
+        function handleTypeChange() {
+            const type = document.getElementById('vehicleType').value;
+            const feeInput = document.getElementById('parkingFee');
+            if (type === 'Bike') {
+                feeInput.value = 20;
+            } else if (type === 'Car') {
+                feeInput.value = 50;
+            }
+        }
+
+        // --------------------------------------------------------------------------
+        // 1. READ ALL: Fetch all vehicles from backend (GET /api/vehicles)
+        // --------------------------------------------------------------------------
+        async function fetchVehicles() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+                const vehicles = await response.json();
+                renderTable(vehicles);
+                updateSummaryCards(vehicles);
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('vehicleTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state" style="color: #dc2626;">
+                            ⚠️ Could not connect to database. Make sure MongoDB Atlas URI is set in .env and the server is running.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Calculate and display summary metrics
+        function updateSummaryCards(vehicles) {
+            const total = vehicles.length;
+            const bikes = vehicles.filter(v => v.vehicleType === 'Bike').length;
+            const cars = vehicles.filter(v => v.vehicleType === 'Car').length;
+            const totalFee = vehicles.reduce((sum, v) => sum + (Number(v.parkingFee) || 0), 0);
+
+            document.getElementById('statTotalVehicles').textContent = total;
+            document.getElementById('statBikes').textContent = bikes;
+            document.getElementById('statCars').textContent = cars;
+            document.getElementById('statTotalFee').textContent = `₹${totalFee}`;
+        }
+
+        // Render table rows dynamically
+        function renderTable(vehicles) {
+            const tbody = document.getElementById('vehicleTableBody');
+            tbody.innerHTML = '';
+
+            if (vehicles.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">No vehicles currently registered in the parking lot.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            vehicles.forEach(vehicle => {
+                const row = document.createElement('tr');
+                const entryDate = vehicle.createdAt
+                    ? new Date(vehicle.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })
+                    : 'N/A';
+
+                const statusClass = vehicle.status === 'Parked' ? 'status-parked' : 'status-exited';
+
+                row.innerHTML = `
+                    <td><strong>${vehicle.vehicleNumber}</strong></td>
+                    <td>${vehicle.vehicleType}</td>
+                    <td>${vehicle.ownerName}</td>
+                    <td>₹${vehicle.parkingFee}</td>
+                    <td><span class="status-badge ${statusClass}">${vehicle.status}</span></td>
+                    <td>${entryDate}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-action-edit" onclick="openUpdateModal('${vehicle._id}', '${vehicle.vehicleNumber}', '${vehicle.status}', ${vehicle.parkingFee})">
+                            ✏️ Update Status/Fee
+                        </button>
+                        <button class="btn btn-action-delete" onclick="deleteVehicle('${vehicle._id}', '${vehicle.vehicleNumber}')">
+                            🗑️ Delete
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // --------------------------------------------------------------------------
+        // 2. CREATE: Register a new vehicle (POST /api/vehicles)
+        // --------------------------------------------------------------------------
+        document.getElementById('vehicleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const payload = {
+                vehicleNumber: document.getElementById('vehicleNumber').value.trim(),
+                vehicleType: document.getElementById('vehicleType').value,
+                ownerName: document.getElementById('ownerName').value.trim(),
+                parkingFee: Number(document.getElementById('parkingFee').value),
+                status: document.getElementById('status').value
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || 'Failed to create record');
+                }
+
+                showAlert('Vehicle registered successfully!', 'success');
+                document.getElementById('vehicleForm').reset();
+                handleTypeChange(); // Reset default fee
+                fetchVehicles();    // Refresh table and summary
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        });
+
+        // --------------------------------------------------------------------------
+        // 3. UPDATE: Open modal and update record (PUT /api/vehicles/:id)
+        // --------------------------------------------------------------------------
+        function openUpdateModal(id, vehicleNumber, status, fee) {
+            document.getElementById('editVehicleId').value = id;
+            document.getElementById('editVehicleNumber').value = vehicleNumber;
+            document.getElementById('editStatus').value = status;
+            document.getElementById('editParkingFee').value = fee;
+            document.getElementById('updateModal').style.display = 'flex';
+        }
+
+        function closeUpdateModal() {
+            document.getElementById('updateModal').style.display = 'none';
+        }
+
+        document.getElementById('updateVehicleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editVehicleId').value;
+            const updatedData = {
+                status: document.getElementById('editStatus').value,
+                parkingFee: Number(document.getElementById('editParkingFee').value)
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || 'Failed to update record');
+                }
+
+                closeUpdateModal();
+                showAlert('Vehicle record updated successfully!', 'success');
+                fetchVehicles(); // Refresh table and summary
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        });
+
+        // --------------------------------------------------------------------------
+        // 4. DELETE: Remove vehicle record (DELETE /api/vehicles/:id)
+        // --------------------------------------------------------------------------
+        async function deleteVehicle(id, vehicleNumber) {
+            const confirmed = confirm(`Are you sure you want to delete vehicle record: ${vehicleNumber}?`);
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.message || 'Failed to delete record');
+                }
+
+                showAlert(`Vehicle ${vehicleNumber} deleted successfully!`, 'success');
+                fetchVehicles(); // Refresh table and summary
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        // Fetch vehicle records on initial page load
+        document.addEventListener('DOMContentLoaded', fetchVehicles);
+    </script>
+</body>
+</html>

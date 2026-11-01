@@ -1,0 +1,382 @@
+/* ==============================================================================
+   PARKING LOT SYSTEM - PURE CSS STYLESHEET
+   Clean, modern, responsive styling without any external frameworks
+   ============================================================================== */
+
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --success: #16a34a;
+    --success-bg: #dcfce7;
+    --danger: #dc2626;
+    --danger-hover: #b91c1c;
+    --warning: #f59e0b;
+    --warning-bg: #fef3c7;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --border-color: #e2e8f0;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    background-color: #f8fafc;
+    color: var(--gray-800);
+    line-height: 1.5;
+    padding: 24px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* ------------------------------------------------------------------------------
+   Header & Subtitle
+   ------------------------------------------------------------------------------ */
+header {
+    background: #ffffff;
+    padding: 24px 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--gray-800);
+}
+
+header p {
+    color: var(--gray-600);
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.badge-tag {
+    background: #eff6ff;
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #bfdbfe;
+}
+
+/* ------------------------------------------------------------------------------
+   Summary Cards (Total Vehicles, Bikes, Cars, Fee Collected)
+   ------------------------------------------------------------------------------ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.stat-title {
+    font-size: 13px;
+    color: var(--gray-600);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 8px;
+    color: var(--gray-800);
+}
+
+.stat-value.highlight {
+    color: var(--success);
+}
+
+/* ------------------------------------------------------------------------------
+   Card Layout (Form & Table Containers)
+   ------------------------------------------------------------------------------ */
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--gray-100);
+    padding-bottom: 10px;
+}
+
+/* ------------------------------------------------------------------------------
+   Form Styles
+   ------------------------------------------------------------------------------ */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    align-items: end;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select {
+    padding: 10px 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    background-color: #ffffff;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--primary);
+}
+
+/* ------------------------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------------------------ */
+.btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-action-edit {
+    background-color: #eff6ff;
+    color: var(--primary);
+    border: 1px solid #bfdbfe;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-action-edit:hover {
+    background-color: #dbeafe;
+}
+
+.btn-action-delete {
+    background-color: #fef2f2;
+    color: var(--danger);
+    border: 1px solid #fecaca;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-action-delete:hover {
+    background-color: #fee2e2;
+}
+
+.btn-secondary {
+    background-color: var(--gray-200);
+    color: var(--gray-700);
+}
+
+.btn-secondary:hover {
+    background-color: #cbd5e1;
+}
+
+/* ------------------------------------------------------------------------------
+   Table Styles
+   ------------------------------------------------------------------------------ */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
+}
+
+table th {
+    background-color: var(--gray-50);
+    color: var(--gray-600);
+    font-weight: 600;
+    padding: 12px 14px;
+    border-bottom: 2px solid var(--gray-200);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
+table td {
+    padding: 14px;
+    border-bottom: 1px solid var(--gray-200);
+    vertical-align: middle;
+}
+
+table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-parked {
+    background-color: var(--success-bg);
+    color: var(--success);
+}
+
+.status-exited {
+    background-color: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.actions-cell {
+    display: flex;
+    gap: 8px;
+}
+
+/* ------------------------------------------------------------------------------
+   Empty & Loading States
+   ------------------------------------------------------------------------------ */
+.empty-state {
+    text-align: center;
+    padding: 36px 16px;
+    color: var(--gray-600);
+    font-size: 14px;
+}
+
+/* ------------------------------------------------------------------------------
+   Alert / Message Banner
+   ------------------------------------------------------------------------------ */
+.alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: none;
+}
+
+.alert-success {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+/* ------------------------------------------------------------------------------
+   Update Modal
+   ------------------------------------------------------------------------------ */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+}
+
+.modal {
+    background: #ffffff;
+    border-radius: 12px;
+    max-width: 440px;
+    width: 100%;
+    padding: 24px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--gray-600);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
