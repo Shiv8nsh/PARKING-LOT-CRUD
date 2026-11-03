@@ -122,7 +122,7 @@
 
                 <div class="form-group" style="margin-bottom: 14px;">
                     <label>Vehicle Number</label>
-                    <input type="text" id="editVehicleNumber" disabled style="background-color: #f1f5f9;" />
+                    <input type="text" id="editVehicleNumber" disabled style="background-color: var(--bg-main); color: var(--text-primary);" />
                 </div>
 
                 <div class="form-group" style="margin-bottom: 14px;">
@@ -192,7 +192,7 @@
                 console.error('Fetch error:', error);
                 document.getElementById('vehicleTableBody').innerHTML = `
                     <tr>
-                        <td colspan="7" class="empty-state" style="color: #dc2626;">
+                        <td colspan="7" class="empty-state" style="color: #9c2e35;">
                             ⚠️ Could not connect to database. Make sure MongoDB Atlas URI is set in .env and the server is running.
                         </td>
                     </tr>
